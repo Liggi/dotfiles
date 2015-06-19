@@ -10,8 +10,7 @@ Plugin 'altercation/vim-colors-solarized'
 
 Plugin 'vim-scripts/ZoomWin'
 
-"Plugin 'tpope/vim-fugitive' -- Current conflict with Wakatime, disabled for
-"now
+Plugin 'tpope/vim-fugitive'
 Plugin 'tpope/vim-repeat'
 Plugin 'tpope/vim-surround'
 
@@ -27,8 +26,8 @@ Plugin 'evidens/vim-twig'
 
 Plugin 'wakatime/vim-wakatime'
 
-call vundle#end()            " required
 filetype plugin indent on    " required
+call vundle#end()            " required
 
 " --- Basic Stuffs --- "
 set nobackup
