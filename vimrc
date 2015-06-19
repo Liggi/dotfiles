@@ -26,8 +26,8 @@ Plugin 'evidens/vim-twig'
 
 Plugin 'wakatime/vim-wakatime'
 
-filetype plugin indent on    " required
 call vundle#end()            " required
+filetype plugin indent on    " required
 
 " --- Basic Stuffs --- "
 set nobackup
