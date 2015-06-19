@@ -1,3 +1,6 @@
+set nocompatible
+filetype off
+
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
@@ -26,10 +29,8 @@ Plugin 'wakatime/vim-wakatime'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
-filetype off
 
 " --- Basic Stuffs --- "
-set nocompatible
 set nobackup
 set nowritebackup
 set noswapfile
