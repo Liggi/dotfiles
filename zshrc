@@ -1,5 +1,5 @@
 # Path to your oh-my-zsh installation.
-export ZSH=/Users/json/.oh-my-zsh
+export ZSH=$HOME/.oh-my-zsh
 
 # Set name of the theme to load.
 # Look in ~/.oh-my-zsh/themes/
@@ -81,7 +81,9 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-alias vim="mvim -v"
-alias vi="mvim -v"
-
-if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+if [ -n "$(command -v mvim)" ]; then
+  export EDITOR="mvim -v"
+  alias vim="mvim -v"
+else
+  export EDITOR=vim
+fi
