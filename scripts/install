@@ -1,0 +1,15 @@
+#!/bin/bash
+
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
+
+symlink() {
+  src=$DOTFILES_DIR/$1
+  dst=$HOME/.$1
+
+  echo "SYMLINK: $src → $dst"
+  rm "$dst" && ln -sf "$src" "$dst"
+}
+
+symlink vimrc
+symlink gitconfig
+symlink zshrc
