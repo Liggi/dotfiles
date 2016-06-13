@@ -22,9 +22,8 @@ Plugin 'ddollar/nerdcommenter'
 Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/syntastic'
 
-Plugin 'evidens/vim-twig'
-
-Plugin 'wakatime/vim-wakatime'
+" Plugin 'evidens/vim-twig'
+" Plugin 'wakatime/vim-wakatime'
 
 call vundle#end()            " required
 filetype plugin indent on    " required

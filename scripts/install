@@ -6,10 +6,17 @@ symlink() {
   src=$DOTFILES_DIR/$1
   dst=$HOME/.$1
 
+  if [[ -e "$dst" ]]; then
+    rm -rf "$dst"
+  fi
+
   echo "SYMLINK: $src → $dst"
-  rm "$dst" && ln -sf "$src" "$dst"
+  ln -sf "$src" "$dst"
 }
 
+symlink vim
 symlink vimrc
 symlink gitconfig
 symlink zshrc
+
+vim +PluginInstall +qall
