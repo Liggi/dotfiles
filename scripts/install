@@ -18,5 +18,6 @@ symlink vim
 symlink vimrc
 symlink gitconfig
 symlink zshrc
+symlink tmux.conf
 
 vim +PluginInstall +qall

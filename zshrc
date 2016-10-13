@@ -87,3 +87,6 @@ if [ -n "$(command -v mvim)" ]; then
 else
   export EDITOR=vim
 fi
+export PATH="/home/vagrant/.linuxbrew/bin:$PATH"
+export MANPATH="/home/vagrant/.linuxbrew/share/man:$MANPATH"
+export INFOPATH="/home/vagrant/.linuxbrew/share/info:$INFOPATH"

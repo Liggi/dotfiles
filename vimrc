@@ -20,6 +20,8 @@ Plugin 'ddollar/nerdcommenter'
 Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/syntastic'
 
+Plugin 'christoomey/vim-tmux-navigator'
+
 " Plugin 'evidens/vim-twig'
 " Plugin 'wakatime/vim-wakatime'
 
