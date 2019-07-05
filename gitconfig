@@ -1,3 +1,5 @@
 [user]
 	name = Jason Liggi
 	email = jason@liggi.net
+[core]
+	excludesfile = /home/vagrant/.gitignore_global
