@@ -1,100 +1,129 @@
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
- #Set name of the theme to load.
-# Look in ~/.oh-my-zsh/themes/
-# Optionally, if you set this to "random", it'll load a random theme each
-# time that oh-my-zsh is loaded.
-ZSH_THEME="robbyrussell"
+# Note: Using Starship prompt instead of oh-my-zsh themes (see starship init below)
 
-export TERM=screen-256color
 
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+# Plugins: git (aliases), brew (completions), node (JS/TS dev),
+# zsh-autosuggestions (fish-like suggestions), zsh-syntax-highlighting (color feedback)
+plugins=(git brew node zsh-autosuggestions zsh-syntax-highlighting)
 
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
+# User configuration - PATH Management
 
-# Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
-
-# User configuration
-
+# System paths (base)
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-export PATH=/usr/local/opt/ruby/bin:$PATH
-# export MANPATH="/usr/local/man:$MANPATH"
-export PATH=$PATH:/usr/local/go/bin
+
+# Add Homebrew 
+export PATH="/opt/homebrew/bin:$PATH"
+
+# Add specialized tools
+export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"  # Java 11
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"       # PostgreSQL tools
+
+# Add your Go workspace
+export PATH="$PATH:$HOME/go/bin"
 
 source $ZSH/oh-my-zsh.sh
 
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# ssh
-# export SSH_KEY_PATH="~/.ssh/dsa_id"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-
-if [ -n "$(command -v mvim)" ]; then
-  export EDITOR="mvim -v"
-  alias vim="mvim -v"
+# Editor setup - Use Neovim
+if command -v nvim >/dev/null 2>&1; then
+  export EDITOR=nvim
+  alias vim=nvim
+  alias vi=nvim
 else
   export EDITOR=vim
 fi
-export PATH="/home/vagrant/.linuxbrew/bin:$PATH"
-export MANPATH="/home/vagrant/.linuxbrew/share/man:$MANPATH"
-export INFOPATH="/home/vagrant/.linuxbrew/share/info:$INFOPATH"
 
-export NVM_DIR="/Users/liggi/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# Add Rust/Cargo tools
+export PATH="$HOME/.cargo/bin:$PATH"
 
-export YVM_DIR=/usr/local/opt/yvm
-[ -r $YVM_DIR/yvm.sh ] && . $YVM_DIR/yvm.sh
+# Node.js version management
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+
+# Go private modules
+export GOPRIVATE=github.com/gradientlabs-ai/wearegradient
+
+# pnpm setup
+export PNPM_HOME="/Users/jasonliggi/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# Custom database connection function
+db() { pgcli $(encore db conn-uri platform | sed 's/localhost/127.0.0.1/') }
+
+# Load environment variables and API keys
+. "$HOME/.local/bin/env"
+
+eval "$(starship init zsh)"
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+function dev() {
+  ROOT_1="$HOME/src/github.com/gradientlabs-ai"
+  ROOT_2="$HOME/src/github.com/gradientlabs-ai-two"
+
+  workspace=$(printf "Workspace One\nWorkspace Two" | fzf --prompt="Select a workspace: ")
+
+  if [ -z "$workspace" ]; then
+    echo "No selection"
+    return 1
+  fi
+
+  if [[ "$workspace" == "Workspace One" ]]; then
+    export WORKSPACE=1
+    cd "$ROOT_1"
+  else
+    export WORKSPACE=2
+    cd "$ROOT_2"
+  fi
+}
+
+# Modern CLI tool initialization
+eval "$(zoxide init zsh)" 
+source /Users/jasonliggi/.config/broot/launcher/bash/br
+
+# Modern CLI tool aliases
+alias cat="bat"
+alias ls="eza --icons --group-directories-first"
+alias ll="eza -l --icons --group-directories-first"
+alias la="eza -la --icons --group-directories-first"  
+alias tree="eza --tree --icons"
+alias find="fd"
+alias grep="rg"
+
+# Productivity shortcuts  
+alias help="tldr"
+
+# Enhanced git workflow
+alias gdiff="git diff"  # Uses delta (already configured)
+alias glog="git log --oneline --graph --decorate"
+
+# Enhanced FZF integration with modern tools
+export FZF_DEFAULT_COMMAND="fd --type f --color=never"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd --type d . --color=never"
+export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range :300 {}'"
+export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
+export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window up:3:hidden:wrap --bind '?:toggle-preview'"
+
+# Lazygit with directory sync
+lg() {
+    export LAZYGIT_NEW_DIR_FILE=~/.lazygit/newdir
+    lazygit "$@"
+    if [ -f $LAZYGIT_NEW_DIR_FILE ]; then
+        cd "$(cat $LAZYGIT_NEW_DIR_FILE)"
+        rm -f $LAZYGIT_NEW_DIR_FILE > /dev/null
+    fi
+}
+
+# pnpm productivity aliases (since you use pnpm)
+alias pi="pnpm install"
+alias pa="pnpm add"
+alias pad="pnpm add -D"
+alias pr="pnpm run"
+alias px="pnpx"
+
+# Personal scripts
+export PATH="$HOME/bin:$PATH"

@@ -1,6 +1,39 @@
 #!/bin/bash
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+
+echo "🚀 Setting up dotfiles..."
+
+# Install Oh-My-Zsh if not present
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+  echo "📦 Installing Oh-My-Zsh..."
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
+
+# Install modern CLI tools and neovim
+echo "⚡ Installing modern CLI productivity tools and Neovim..."
+if command -v brew >/dev/null 2>&1; then
+  brew install bat eza fd ripgrep lazygit gh tldr neovim 2>/dev/null || echo "  Some tools may already be installed"
+else
+  echo "  Homebrew not found - install manually: brew install bat eza fd ripgrep lazygit gh tldr neovim"
+fi
+
+# Install external Oh-My-Zsh plugins
+echo "🔌 Installing Oh-My-Zsh plugins..."
+
+if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]]; then
+  echo "  - Installing zsh-autosuggestions"
+  git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+fi
+
+if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]]; then
+  echo "  - Installing zsh-syntax-highlighting"
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+fi
+
+# Create symlinks
+echo "🔗 Creating symlinks..."
 
 symlink() {
   src=$DOTFILES_DIR/$1
@@ -10,14 +43,23 @@ symlink() {
     rm -rf "$dst"
   fi
 
-  echo "SYMLINK: $src → $dst"
+  echo "  SYMLINK: $src → $dst"
   ln -sf "$src" "$dst"
 }
 
-symlink vim
-symlink vimrc
 symlink gitconfig
 symlink zshrc
 symlink tmux.conf
 
-vim +PluginInstall +qall
+# Set up Neovim config directory
+echo "🎨 Setting up Neovim configuration..."
+mkdir -p ~/.config/nvim
+if [[ -f "$DOTFILES_DIR/nvim/init.lua" ]]; then
+  ln -sf "$DOTFILES_DIR/nvim/init.lua" ~/.config/nvim/init.lua
+  echo "  Neovim config symlinked"
+else
+  echo "  Neovim config will be created separately"
+fi
+
+echo "✅ Dotfiles setup complete!"
+echo "💡 Restart your terminal or run 'source ~/.zshrc' to apply changes"

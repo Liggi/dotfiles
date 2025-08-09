@@ -1,5 +1,45 @@
 [user]
 	name = Jason Liggi
-	email = jason@liggi.net
+	email = jason@gradient-labs.ai
+
 [core]
-	excludesfile = /home/vagrant/.gitignore_global
+	excludesfile = ~/.gitignore_global
+	editor = nvim
+	autocrlf = input
+	ignorecase = false
+
+[init]
+	defaultBranch = main
+
+[push]
+	default = simple
+	autoSetupRemote = true
+
+[pull]
+	rebase = true
+
+[rebase]
+	autosquash = true
+
+[merge]
+	conflictstyle = diff3
+
+[diff]
+	algorithm = patience
+	compactionHeuristic = true
+
+[url "git@github.com:"]
+	insteadOf = https://github.com/
+
+[pager]
+	diff = delta
+	show = delta
+	log = delta --line-numbers
+
+[delta]
+	navigate = true
+	light = false
+	side-by-side = true
+
+[interactive]
+	diffFilter = delta --color-only
