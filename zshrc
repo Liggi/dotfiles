@@ -61,22 +61,16 @@ eval "$(starship init zsh)"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 function dev() {
-  ROOT_1="$HOME/src/github.com/gradientlabs-ai"
-  ROOT_2="$HOME/src/github.com/gradientlabs-ai-two"
-
-  workspace=$(printf "Workspace One\nWorkspace Two" | fzf --prompt="Select a workspace: ")
-
-  if [ -z "$workspace" ]; then
-    echo "No selection"
-    return 1
-  fi
-
-  if [[ "$workspace" == "Workspace One" ]]; then
-    export WORKSPACE=1
-    cd "$ROOT_1"
+  if [ -n "$TMUX" ]; then
+    tmux split-window -h \; select-pane -L \; split-window -v \; \
+         select-pane -t 1 \; select-pane -T "Amp" \; \
+         select-pane -t 2 \; select-pane -T "Claude Code" \; \
+         select-pane -t 3 \; select-pane -T "Neovim / Terminal"
   else
-    export WORKSPACE=2
-    cd "$ROOT_2"
+    tmux new-session \; split-window -h \; select-pane -L \; split-window -v \; \
+         select-pane -t 1 \; select-pane -T "Amp" \; \
+         select-pane -t 2 \; select-pane -T "Claude Code" \; \
+         select-pane -t 3 \; select-pane -T "Neovim / Terminal"
   fi
 }
 
@@ -97,7 +91,20 @@ alias grep="rg"
 alias help="tldr"
 
 # Enhanced git workflow
-alias gdiff="git diff"  # Uses delta (already configured)
+unset -f gdiff 2>/dev/null; unalias gdiff 2>/dev/null
+gdiff() {
+  if [ -n "$TMUX" ]; then
+    local current_pane=$(tmux display-message -p '#{pane_id}')
+    tmux select-pane -t "$current_pane"
+    tmux resize-pane -Z
+  fi
+  
+  nvim -c 'DiffviewOpen'
+  
+  if [ -n "$TMUX" ]; then
+    tmux resize-pane -Z
+  fi
+}
 alias glog="git log --oneline --graph --decorate"
 
 # Enhanced FZF integration with modern tools
@@ -127,3 +134,46 @@ alias px="pnpx"
 
 # Personal scripts
 export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/claudefiles:$PATH"
+
+check-webapp() {
+    local current_dir=$(pwd)
+    
+    cd ~/src/github.com/gradientlabs-ai/web-app
+    
+    echo "🔍 Running web app checks..."
+    echo
+    
+    echo "📦 Installing dependencies..."
+    pnpm install
+    echo
+    
+    echo "🔧 Building packages..."
+    pnpm build:packages || { echo "❌ Build packages failed"; cd "$current_dir"; return 1; }
+    echo
+    
+    cd apps/web-app
+    echo "🔍 Switched to $(pwd) for app-specific checks..."
+    echo
+    
+    echo "🧹 Running linter with auto-fix..."
+    pnpm lint --fix || { echo "❌ Lint failed"; cd "$current_dir"; return 1; }
+    echo
+    
+    echo "💅 Auto-fixing formatting..."
+    pnpm prettier --write . || { echo "❌ Formatting failed"; cd "$current_dir"; return 1; }
+    echo
+    
+    echo "🔍 Running type check..."
+    pnpm typecheck || { echo "❌ Type check failed"; cd "$current_dir"; return 1; }
+    echo
+    
+    echo "🧪 Running tests..."
+    pnpm test:ci || { echo "❌ Tests failed"; cd "$current_dir"; return 1; }
+    echo
+    
+    echo "✅ All checks passed!"
+    
+    cd "$current_dir"
+}
