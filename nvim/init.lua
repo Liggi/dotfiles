@@ -53,11 +53,30 @@ vim.keymap.set("n", "<leader>w", "<cmd>write<cr>", { desc = "Save file" })
 vim.keymap.set("n", "<leader>q", "<cmd>quit<cr>", { desc = "Quit" })
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<cr>")
 
+-- Close floating windows with Esc
+vim.keymap.set("n", "<Esc>", function()
+  -- Close any floating windows first
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_get_config(win).relative ~= "" then
+      vim.api.nvim_win_close(win, false)
+      return
+    end
+  end
+  -- If no floating windows, clear search highlights
+  vim.cmd("nohlsearch")
+end, { desc = "Close floating windows or clear search" })
+
 -- Better window navigation
 vim.keymap.set("n", "<C-h>", "<C-w>h")
 vim.keymap.set("n", "<C-j>", "<C-w>j") 
 vim.keymap.set("n", "<C-k>", "<C-w>k")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
+
+-- Tmux pane navigation with leader key
+vim.keymap.set("n", "<leader>h", "<cmd>!tmux select-pane -L<cr><cr>", { desc = "Move to tmux pane left" })
+vim.keymap.set("n", "<leader>j", "<cmd>!tmux select-pane -D<cr><cr>", { desc = "Move to tmux pane down" })
+vim.keymap.set("n", "<leader>k", "<cmd>!tmux select-pane -U<cr><cr>", { desc = "Move to tmux pane up" })
+vim.keymap.set("n", "<leader>l", "<cmd>!tmux select-pane -R<cr><cr>", { desc = "Move to tmux pane right" })
 
 -- Move lines up/down
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
@@ -72,6 +91,13 @@ require("lazy").setup({
     priority = 1000,
     config = function()
       vim.cmd([[colorscheme tokyonight-storm]])
+      
+      -- Clean floating window styling
+      vim.schedule(function()
+        -- Transparent border background to prevent extending beyond border
+        vim.api.nvim_set_hl(0, "FloatBorder", { bg = "NONE", fg = "#7aa2f7" })
+        -- Let Tokyo Night handle NormalFloat styling
+      end)
     end,
   },
 
@@ -153,58 +179,86 @@ require("lazy").setup({
     },
     config = function()
       require('mason').setup()
-      require('mason-lspconfig').setup({
-        ensure_installed = { 'lua_ls', 'ts_ls', 'pyright', 'gopls', 'rust_analyzer' },
-        automatic_installation = true,
-      })
       
-      require('fidget').setup({})
-      
-      local on_attach = function(_, bufnr)
-        local nmap = function(keys, func, desc)
-          if desc then
-            desc = 'LSP: ' .. desc
-          end
-          vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
-        end
-
-        nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-        nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
-        nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-        nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-        nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
-        nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
-        nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-        nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
-        nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-        nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
-        nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-      end
-
-      local servers = {
-        lua_ls = {
-          Lua = {
-            workspace = { checkThirdParty = false },
-            telemetry = { enable = false },
-          },
-        },
-        ts_ls = {},
-        pyright = {},
-        gopls = {},
-        rust_analyzer = {},
-      }
-
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
-      -- Setup each server manually (more reliable than setup_handlers)
-      for server_name, server_config in pairs(servers) do
-        require('lspconfig')[server_name].setup({
-          capabilities = capabilities,
-          on_attach = on_attach,
-          settings = server_config,
-        })
-      end
+      -- Modern LspAttach autocmd (replaces on_attach)
+      vim.api.nvim_create_autocmd("LspAttach", {
+        callback = function(args)
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if not client then return end
+          
+          local bufnr = args.buf
+          local nmap = function(keys, func, desc)
+            if desc then
+              desc = 'LSP: ' .. desc
+            end
+            vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
+          end
+
+          nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+          nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+          nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+          nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
+          nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
+          nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+          nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+          nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+          nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+          nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+        end,
+      })
+
+      -- Standard LSP hover with borders (the Neovim way)  
+      vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+        border = "rounded",
+        max_width = 80,
+        max_height = 30,
+        focusable = true,
+      })
+      
+      -- DEBUG: Let's see what's happening
+      print("LSP handler set with border: rounded")
+
+      require('mason-lspconfig').setup({
+        ensure_installed = { 'lua_ls', 'ts_ls', 'pyright', 'gopls', 'rust_analyzer' },
+        automatic_installation = true,
+        handlers = {
+          function(server_name)
+            require('lspconfig')[server_name].setup({
+              capabilities = capabilities,
+            })
+          end,
+          lua_ls = function()
+            require('lspconfig').lua_ls.setup({
+              capabilities = capabilities,
+              settings = {
+                Lua = {
+                  workspace = { checkThirdParty = false },
+                  telemetry = { enable = false },
+                },
+              },
+            })
+          end,
+          ts_ls = function()
+            require('lspconfig').ts_ls.setup({
+              capabilities = capabilities,
+              root_dir = require('lspconfig').util.root_pattern('package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'package.json', 'tsconfig.json'),
+              settings = {
+                typescript = {
+                  preferences = {
+                    includePackageJsonAutoImports = "auto",
+                  },
+                },
+              },
+            })
+          end,
+        },
+      })
+      
+      require('fidget').setup({})
     end,
   },
 
@@ -277,6 +331,38 @@ require("lazy").setup({
         changedelete = { text = '~' },
       },
     },
+  },
+
+  -- Git diff viewer
+  {
+    'sindrets/diffview.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('diffview').setup({
+        enhanced_diff_hl = true, -- Enable enhanced syntax highlighting in diffs
+        view = {
+          default = {
+            layout = "diff2_horizontal",
+          },
+          merge_tool = {
+            layout = "diff3_horizontal",
+          },
+        },
+      })
+      
+      vim.keymap.set('n', '<leader>gd', '<cmd>DiffviewOpen<cr>', { desc = 'Open git diff' })
+      vim.keymap.set('n', '<leader>gc', '<cmd>DiffviewClose<cr>', { desc = 'Close git diff' })
+      vim.keymap.set('n', '<leader>gh', '<cmd>DiffviewFileHistory %<cr>', { desc = 'File history' })
+      
+      -- Quick exit from diffview
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "DiffviewFiles", "DiffviewFileHistory" },
+        callback = function()
+          vim.keymap.set('n', 'q', '<cmd>DiffviewClose<cr><cmd>quit<cr>', { buffer = true, desc = 'Close diffview and exit' })
+          vim.keymap.set('n', '<Esc><Esc>', '<cmd>DiffviewClose<cr><cmd>quit<cr>', { buffer = true, desc = 'Quick exit diffview' })
+        end,
+      })
+    end,
   },
 
   -- Status line
