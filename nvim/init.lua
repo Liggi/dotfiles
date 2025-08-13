@@ -66,11 +66,7 @@ vim.keymap.set("n", "<Esc>", function()
   vim.cmd("nohlsearch")
 end, { desc = "Close floating windows or clear search" })
 
--- Better window navigation
-vim.keymap.set("n", "<C-h>", "<C-w>h")
-vim.keymap.set("n", "<C-j>", "<C-w>j") 
-vim.keymap.set("n", "<C-k>", "<C-w>k")
-vim.keymap.set("n", "<C-l>", "<C-w>l")
+-- Window navigation disabled - tmux vim-tmux-navigator plugin handles Ctrl+hjkl
 
 -- Tmux pane navigation with leader key
 vim.keymap.set("n", "<leader>h", "<cmd>!tmux select-pane -L<cr><cr>", { desc = "Move to tmux pane left" })
@@ -110,6 +106,7 @@ require("lazy").setup({
       require('telescope').setup({
         defaults = {
           file_ignore_patterns = { "node_modules", ".git" },
+          path_display = { "smart" },
           mappings = {
             i = {
               ['<C-u>'] = false,
@@ -423,5 +420,11 @@ require("lazy").setup({
     config = function()
       require('Comment').setup()
     end,
+  },
+
+  -- Tmux navigation
+  {
+    'christoomey/vim-tmux-navigator',
+    lazy = false,
   },
 })
