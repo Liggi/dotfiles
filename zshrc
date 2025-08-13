@@ -135,7 +135,7 @@ alias px="pnpx"
 # Personal scripts
 export PATH="$HOME/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/claudefiles:$PATH"
+export PATH="$HOME/claudefiles/bin:$PATH"
 
 if [[ -n "$TMUX" ]]; then
     bindkey -s '^L' ''
