@@ -137,6 +137,10 @@ export PATH="$HOME/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/claudefiles:$PATH"
 
+if [[ -n "$TMUX" ]]; then
+    bindkey -s '^L' ''
+fi
+
 check-webapp() {
     local current_dir=$(pwd)
     
