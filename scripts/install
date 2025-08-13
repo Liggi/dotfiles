@@ -5,18 +5,41 @@ ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
 echo "🚀 Setting up dotfiles..."
 
+# Install Homebrew if not present
+if ! command -v brew >/dev/null 2>&1; then
+  echo "🍺 Installing Homebrew..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  
+  # Add Homebrew to PATH for the rest of this script
+  if [[ -f "/opt/homebrew/bin/brew" ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [[ -f "/usr/local/bin/brew" ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
+fi
+
 # Install Oh-My-Zsh if not present
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   echo "📦 Installing Oh-My-Zsh..."
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
 
-# Install modern CLI tools and neovim
-echo "⚡ Installing modern CLI productivity tools and Neovim..."
-if command -v brew >/dev/null 2>&1; then
-  brew install bat eza fd ripgrep lazygit gh tldr neovim 2>/dev/null || echo "  Some tools may already be installed"
-else
-  echo "  Homebrew not found - install manually: brew install bat eza fd ripgrep lazygit gh tldr neovim"
+# Install CLI tools and applications
+echo "⚡ Installing CLI productivity tools and applications..."
+brew install bat eza fd ripgrep lazygit gh tldr neovim git-delta starship fzf zoxide 2>/dev/null || echo "  Some tools may already be installed"
+
+# Install broot
+if ! command -v broot >/dev/null 2>&1; then
+  echo "🌳 Installing broot..."
+  brew install broot
+  # Initialize broot config
+  broot --install || echo "  Broot config initialization skipped"
+fi
+
+# Set up FZF key bindings and fuzzy completion
+if command -v fzf >/dev/null 2>&1; then
+  echo "🔍 Setting up FZF integration..."
+  $(brew --prefix)/opt/fzf/install --key-bindings --completion --no-update-rc 2>/dev/null || echo "  FZF setup may already be complete"
 fi
 
 # Install external Oh-My-Zsh plugins
