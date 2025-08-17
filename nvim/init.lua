@@ -68,11 +68,11 @@ end, { desc = "Close floating windows or clear search" })
 
 -- Window navigation disabled - tmux vim-tmux-navigator plugin handles Ctrl+hjkl
 
--- Tmux pane navigation with leader key
 vim.keymap.set("n", "<leader>h", "<cmd>!tmux select-pane -L<cr><cr>", { desc = "Move to tmux pane left" })
 vim.keymap.set("n", "<leader>j", "<cmd>!tmux select-pane -D<cr><cr>", { desc = "Move to tmux pane down" })
 vim.keymap.set("n", "<leader>k", "<cmd>!tmux select-pane -U<cr><cr>", { desc = "Move to tmux pane up" })
 vim.keymap.set("n", "<leader>l", "<cmd>!tmux select-pane -R<cr><cr>", { desc = "Move to tmux pane right" })
+
 
 -- Move lines up/down
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
@@ -355,8 +355,8 @@ require("lazy").setup({
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "DiffviewFiles", "DiffviewFileHistory" },
         callback = function()
-          vim.keymap.set('n', 'q', '<cmd>DiffviewClose<cr><cmd>quit<cr>', { buffer = true, desc = 'Close diffview and exit' })
-          vim.keymap.set('n', '<Esc><Esc>', '<cmd>DiffviewClose<cr><cmd>quit<cr>', { buffer = true, desc = 'Quick exit diffview' })
+          vim.keymap.set('n', 'q', '<cmd>DiffviewClose<cr>', { buffer = true, desc = 'Close diffview' })
+          vim.keymap.set('n', '<Esc><Esc>', '<cmd>DiffviewClose<cr>', { buffer = true, desc = 'Quick exit diffview' })
         end,
       })
     end,
@@ -426,5 +426,29 @@ require("lazy").setup({
   {
     'christoomey/vim-tmux-navigator',
     lazy = false,
+    config = function()
+      vim.keymap.set('t', '<C-l>', '<C-\\><C-n><C-w>l', { desc = 'Navigate right from Claude terminal', silent = true, remap = false })
+    end,
+  },
+
+  -- Claude Code integration
+  {
+    'coder/claudecode.nvim',
+    dependencies = { 'folke/snacks.nvim' },
+    config = function()
+      require('claudecode').setup({
+        terminal = {
+          split_side = 'left',
+          split_width_percentage = 0.4,
+        },
+      })
+    end,
+    keys = {
+      { '<leader>cc', '<cmd>ClaudeCode<cr>', desc = 'Launch Claude Code' },
+      { 'y', '<cmd>ClaudeCodeDiffAccept<cr>', desc = 'Accept Claude diff (yes)' },
+      { 'n', '<cmd>ClaudeCodeDiffDeny<cr>', desc = 'Reject Claude diff (no)' },
+      { '<leader>ca', '<cmd>ClaudeCodeDiffAccept<cr>', desc = 'Accept Claude diff' },
+      { '<leader>cr', '<cmd>ClaudeCodeDiffDeny<cr>', desc = 'Reject Claude diff' },
+    },
   },
 })
