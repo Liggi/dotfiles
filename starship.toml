@@ -1,0 +1,81 @@
+add_newline = true
+format = "$hostname$directory$git_branch$git_status$git_commit$nodejs$python$golang$rust$package$docker_context$cmd_duration$character"
+
+[directory]
+truncation_length = 3
+truncate_to_repo = false
+style = "cyan bold"
+format = "[$read_only]($read_only_style)[$path]($style) "
+read_only = "🔒 "
+read_only_style = "red bold"
+home_symbol = ""
+
+[directory.substitutions]
+"/src/github.com/gradientlabs-ai-two" = "Workspace Two"
+"/src/github.com/gradientlabs-ai" = "Workspace One"
+"src/github.com/gradientlabs-ai-two" = "Workspace Two"
+"src/github.com/gradientlabs-ai" = "Workspace One"
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vicmd_symbol = "[❮](bold blue)"
+
+[git_branch]
+symbol = " "
+style = "bold purple"
+truncation_length = 20
+truncation_symbol = "…"
+
+[git_status]
+format = '[$ahead_behind$staged$modified$untracked](bold yellow)'
+style = "bold yellow"
+staged = "+"
+modified = "~"
+untracked = "?"
+
+[nodejs]
+symbol = " "
+style = "green"
+format = "using [$symbol$version]($style) "
+
+[python]
+symbol = " "
+style = "blue"
+format = "using [$symbol$version]($style) "
+
+[golang]
+detect_files = ["go.mod", "go.sum", "Gopkg.toml", "glide.yaml"]
+style = "cyan bold"
+symbol = "🐹 "
+format = "using [$symbol$version]($style) "
+
+[rust]
+detect_files = ["Cargo.toml"]
+style = "red bold" 
+symbol = "🦀 "
+format = "using [$symbol$version]($style) "
+
+[package]
+format = "using [$symbol$version]($style) "
+symbol = "📦 "
+style = "bright-yellow bold"
+
+[cmd_duration]
+min_time = 2000
+format = "took [$duration]($style) "
+style = "yellow bold"
+
+[docker_context]
+format = "using [🐳 $context](blue bold) "
+only_with_files = false
+
+[hostname]
+ssh_only = true
+format = "on [$hostname](bold red) "
+disabled = false
+
+[git_commit]
+commit_hash_length = 7
+format = '[\($hash$tag\)]($style) '
+style = "green bold"

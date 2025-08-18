@@ -86,6 +86,7 @@ alias la="eza -la --icons --group-directories-first"
 alias tree="eza --tree --icons"
 alias find="fd"
 alias grep="rg"
+alias du="dust"
 
 # Productivity shortcuts  
 alias help="tldr"
@@ -181,3 +182,7 @@ check-webapp() {
     
     cd "$current_dir"
 }
+
+. "$HOME/.atuin/bin/env"
+
+eval "$(atuin init zsh)"

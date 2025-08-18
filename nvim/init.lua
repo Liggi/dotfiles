@@ -330,6 +330,18 @@ require("lazy").setup({
     },
   },
 
+  -- Git workflow commands
+  {
+    'tpope/vim-fugitive',
+    config = function()
+      vim.keymap.set('n', '<leader>gs', '<cmd>Git<cr>', { desc = 'Git status (staging)' })
+      vim.keymap.set('n', '<leader>ga', '<cmd>Git add %<cr>', { desc = 'Git add current file' })
+      vim.keymap.set('n', '<leader>gc', '<cmd>Git commit<cr>', { desc = 'Git commit' })
+      vim.keymap.set('n', '<leader>gp', '<cmd>Git push<cr>', { desc = 'Git push' })
+      vim.keymap.set('n', '<leader>gb', '<cmd>Git blame<cr>', { desc = 'Git blame' })
+    end,
+  },
+
   -- Git diff viewer
   {
     'sindrets/diffview.nvim',
@@ -348,7 +360,7 @@ require("lazy").setup({
       })
       
       vim.keymap.set('n', '<leader>gd', '<cmd>DiffviewOpen<cr>', { desc = 'Open git diff' })
-      vim.keymap.set('n', '<leader>gc', '<cmd>DiffviewClose<cr>', { desc = 'Close git diff' })
+      vim.keymap.set('n', '<leader>gq', '<cmd>DiffviewClose<cr>', { desc = 'Close git diff' })
       vim.keymap.set('n', '<leader>gh', '<cmd>DiffviewFileHistory %<cr>', { desc = 'File history' })
       
       -- Quick exit from diffview

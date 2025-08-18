@@ -26,7 +26,7 @@ fi
 
 # Install CLI tools and applications
 echo "⚡ Installing CLI productivity tools and applications..."
-brew install bat eza fd ripgrep lazygit gh tldr neovim git-delta starship fzf zoxide 2>/dev/null || echo "  Some tools may already be installed"
+brew install bat eza fd ripgrep lazygit gh tldr neovim git-delta starship fzf zoxide dust 2>/dev/null || echo "  Some tools may already be installed"
 
 # Install broot
 if ! command -v broot >/dev/null 2>&1; then
@@ -74,14 +74,20 @@ symlink gitconfig
 symlink zshrc
 symlink tmux.conf
 
-# Set up Neovim config directory
-echo "🎨 Setting up Neovim configuration..."
+# Set up config directory and symlinks
+echo "🎨 Setting up configuration files..."
 mkdir -p ~/.config/nvim
+
 if [[ -f "$DOTFILES_DIR/nvim/init.lua" ]]; then
   ln -sf "$DOTFILES_DIR/nvim/init.lua" ~/.config/nvim/init.lua
   echo "  Neovim config symlinked"
 else
   echo "  Neovim config will be created separately"
+fi
+
+if [[ -f "$DOTFILES_DIR/starship.toml" ]]; then
+  ln -sf "$DOTFILES_DIR/starship.toml" ~/.config/starship.toml
+  echo "  Starship config symlinked"
 fi
 
 echo "✅ Dotfiles setup complete!"
