@@ -73,6 +73,28 @@ vim.keymap.set("n", "<leader>j", "<cmd>!tmux select-pane -D<cr><cr>", { desc = "
 vim.keymap.set("n", "<leader>k", "<cmd>!tmux select-pane -U<cr><cr>", { desc = "Move to tmux pane up" })
 vim.keymap.set("n", "<leader>l", "<cmd>!tmux select-pane -R<cr><cr>", { desc = "Move to tmux pane right" })
 
+-- Diff context expansion (remote control)
+vim.keymap.set("n", "<leader>x", function()
+  local expanded_count = 0
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_call(win, function() 
+      return vim.wo.diff 
+    end) then
+      vim.api.nvim_win_call(win, function()
+        vim.cmd("normal! zR")
+      end)
+      expanded_count = expanded_count + 1
+    end
+  end
+  if expanded_count > 0 then
+    print("Expanded " .. expanded_count .. " diff windows")
+  else
+    print("No diff windows found")
+  end
+end, { desc = "eXpand diff context (stay focused here)" })
+
+vim.keymap.set("n", "]d", "]c", { desc = "Next diff change" })
+vim.keymap.set("n", "[d", "[c", { desc = "Previous diff change" })
 
 -- Move lines up/down
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
@@ -452,6 +474,9 @@ require("lazy").setup({
         terminal = {
           split_side = 'left',
           split_width_percentage = 0.4,
+        },
+        diff_opts = {
+          keep_terminal_focus = true,  -- Keep focus in terminal when diff opens
         },
       })
     end,
