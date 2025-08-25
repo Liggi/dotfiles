@@ -465,7 +465,6 @@ require("lazy").setup({
     end,
   },
 
-  -- Claude Code integration
   {
     'coder/claudecode.nvim',
     dependencies = { 'folke/snacks.nvim' },
@@ -476,8 +475,16 @@ require("lazy").setup({
           split_width_percentage = 0.4,
         },
         diff_opts = {
-          keep_terminal_focus = true,  -- Keep focus in terminal when diff opens
+          keep_terminal_focus = true,
         },
+      })
+      
+      vim.api.nvim_create_autocmd("TermOpen", {
+        callback = function()
+          vim.keymap.set('n', 'i', 'i', { buffer = true, desc = 'Enter terminal insert mode' })
+          vim.keymap.set('n', 'a', 'A', { buffer = true, desc = 'Enter terminal insert mode at end' })
+          vim.keymap.set('n', '<Esc>', 'i', { buffer = true, desc = 'Quick return to terminal insert mode' })
+        end,
       })
     end,
     keys = {
