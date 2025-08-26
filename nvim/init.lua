@@ -43,6 +43,8 @@ vim.opt.updatetime = 250
 vim.opt.timeoutlen = 300
 vim.opt.completeopt = "menuone,noselect"
 vim.opt.termguicolors = true
+-- Smooth, consistent scroll binding behavior
+vim.o.scrollopt = "ver,jump"
 
 -- Leader key
 vim.g.mapleader = " "
@@ -138,7 +140,6 @@ require("lazy").setup({
         },
       })
       
-      -- Telescope keymaps
       local builtin = require('telescope.builtin')
       vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Find files' })
       vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Live grep' })
@@ -369,22 +370,130 @@ require("lazy").setup({
     'sindrets/diffview.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
+      -- Function to apply settings to only the diff windows in a given tabpage
+      local function apply_diffview_window_opts(tabpage)
+        vim.defer_fn(function()
+          local wins = {}
+          -- Collect and configure only diff windows in this tab
+          for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
+            local ok, isdiff = pcall(function() return vim.wo[winid].diff end)
+            if ok and isdiff then
+              table.insert(wins, winid)
+              -- Fold settings: show full files with no diff folds
+              vim.wo[winid].foldenable = false
+              vim.wo[winid].foldmethod = 'manual'
+              vim.wo[winid].foldlevel = 99
+              vim.wo[winid].foldcolumn = '0'
+              -- Scroll + cursor binding for consistent sync from either pane
+              vim.wo[winid].scrollbind = true
+              vim.wo[winid].cursorbind = true
+              -- Avoid scrolloff interfering with binding
+              vim.wo[winid].scrolloff = 0
+              -- Ensure huge context in diff to avoid diff-based folding
+              -- diffopt is global in this Neovim; adjust it globally instead of per-window
+              local cur_tbl = vim.opt.diffopt:get()
+              -- remove existing context:* entries
+              for _, item in ipairs(vim.list_slice(cur_tbl)) do
+                if type(item) == 'string' and item:match('^context:%d+') then
+                  pcall(function() vim.opt.diffopt:remove(item) end)
+                end
+              end
+              vim.opt.diffopt:append('context:99999')
+              -- Ensure filler lines keep windows aligned vertically
+              local after_tbl = vim.opt.diffopt:get()
+              local has_filler = false
+              for _, v in ipairs(after_tbl) do
+                if v == 'filler' then has_filler = true break end
+              end
+              if not has_filler then
+                vim.opt.diffopt:append('filler')
+              end
+            end
+          end
+          if #wins > 0 then
+            pcall(vim.cmd, 'syncbind')
+          end
+        end, 20)
+      end
+
       require('diffview').setup({
         enhanced_diff_hl = true, -- Enable enhanced syntax highlighting in diffs
         view = {
-          default = {
-            layout = "diff2_horizontal",
-          },
-          merge_tool = {
-            layout = "diff3_horizontal",
-          },
+          default = { layout = 'diff2_horizontal' },
+          merge_tool = { layout = 'diff3_horizontal' },
+        },
+        hooks = {
+          view_opened = function(view)
+            apply_diffview_window_opts(view.tabpage)
+          end,
+          view_entered = function(view)
+            apply_diffview_window_opts(view.tabpage)
+          end,
+          -- Some versions expose this hook; safe if present
+          diff_buf_win_enter = function(_bufnr, _winid, ctx)
+            if ctx and ctx.view and ctx.view.tabpage then
+              apply_diffview_window_opts(ctx.view.tabpage)
+            end
+          end,
         },
       })
-      
+
+      -- While focused in the file panel, provide shortcuts to scroll both diff panes
+      local function scroll_diff_in_view(cmd)
+        local ok, lib = pcall(require, 'diffview.lib')
+        if not ok then return end
+        local view = lib.get_current_view()
+        if not view then return end
+        local tabpage = view.tabpage
+        for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
+          local ok2, isdiff = pcall(function() return vim.wo[winid].diff end)
+          if ok2 and isdiff then
+            pcall(vim.api.nvim_win_call, winid, function()
+              vim.cmd('normal! ' .. cmd)
+            end)
+          end
+        end
+        pcall(vim.cmd, 'syncbind')
+      end
+
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = 'DiffviewFiles',
+        callback = function(args)
+          local buf = args.buf
+          -- Scroll by one line
+          vim.keymap.set('n', '<C-e>', function() scroll_diff_in_view('<C-e>') end, { buffer = buf, desc = 'Scroll diff panes down' })
+          vim.keymap.set('n', '<C-y>', function() scroll_diff_in_view('<C-y>') end, { buffer = buf, desc = 'Scroll diff panes up' })
+          -- Scroll by half page
+          vim.keymap.set('n', '<C-d>', function() scroll_diff_in_view('<C-d>') end, { buffer = buf, desc = 'Scroll diff panes half-page down' })
+          vim.keymap.set('n', '<C-u>', function() scroll_diff_in_view('<C-u>') end, { buffer = buf, desc = 'Scroll diff panes half-page up' })
+          -- Optional: mouse wheel support within the file panel
+          vim.keymap.set('n', '<ScrollWheelDown>', function() scroll_diff_in_view('<C-e>') end, { buffer = buf, silent = true })
+          vim.keymap.set('n', '<ScrollWheelUp>', function() scroll_diff_in_view('<C-y>') end, { buffer = buf, silent = true })
+        end,
+      })
+
+      -- Also re-apply on Diffview's User events to be extra robust
+      local group = vim.api.nvim_create_augroup('DiffviewTweaksRobust', { clear = true })
+      local function reapply_for_current_view()
+        local ok, lib = pcall(require, 'diffview.lib')
+        if not ok then return end
+        local view = lib.get_current_view()
+        if view then
+          apply_diffview_window_opts(view.tabpage)
+        end
+      end
+      vim.api.nvim_create_autocmd('User', {
+        group = group,
+        pattern = { 'DiffviewViewOpened', 'DiffviewViewEnter', 'DiffviewDiffBufWinEnter' },
+        callback = reapply_for_current_view,
+      })
+
+      -- Simple mappings
       vim.keymap.set('n', '<leader>gd', '<cmd>DiffviewOpen<cr>', { desc = 'Open git diff' })
+
       vim.keymap.set('n', '<leader>gq', '<cmd>DiffviewClose<cr>', { desc = 'Close git diff' })
       vim.keymap.set('n', '<leader>gh', '<cmd>DiffviewFileHistory %<cr>', { desc = 'File history' })
-      
+
       -- Quick exit from diffview
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "DiffviewFiles", "DiffviewFileHistory" },
@@ -409,7 +518,6 @@ require("lazy").setup({
     },
   },
 
-  -- File explorer
   {
     'nvim-tree/nvim-tree.lua',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
@@ -417,18 +525,93 @@ require("lazy").setup({
       require('nvim-tree').setup({
         disable_netrw = true,
         hijack_netrw = true,
+        
         view = {
-          width = 30,
+          float = {
+            enable = true,
+            quit_on_focus_loss = false,
+            open_win_config = {
+              relative = 'editor',
+              border = 'rounded',
+              width = 100,
+              height = 45,
+              row = 2,
+              col = 2,
+            },
+          },
         },
+        
+        live_filter = {
+          prefix = '[FILTER]: ',
+          always_show_folders = true,
+        },
+        
         renderer = {
-          group_empty = true,
+          group_empty = false,
+          full_name = true,
+          highlight_opened_files = 'name',
+          indent_markers = {
+            enable = true,
+            inline_arrows = true,
+          },
+          icons = {
+            show = {
+              file = true,
+              folder = true,
+              folder_arrow = true,
+              git = false,
+            },
+          },
         },
+        
         filters = {
           dotfiles = false,
+          git_clean = false,
+          no_buffer = false,
+          custom = {
+            'node_modules',
+            '.git',
+            '.DS_Store',
+            'thumbs.db',
+            '.next',
+            'dist',
+            'build',
+            '.venv',
+            '__pycache__',
+            '.pytest_cache',
+            'coverage',
+            '.nyc_output',
+          },
+          exclude = {
+            '.gitignore',
+            '.env',
+          },
+        },
+        
+        actions = {
+          open_file = {
+            quit_on_open = false,
+            window_picker = {
+              enable = true,
+            },
+          },
+          expand_all = {
+            max_folder_discovery = 300,
+            exclude = { '.git', 'node_modules', '.cache' },
+          },
+        },
+        
+        git = {
+          enable = false,
+        },
+        
+        diagnostics = {
+          enable = false,
         },
       })
       
-      vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { desc = 'Toggle file explorer' })
+      vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<cr>', { desc = 'Toggle floating file tree' })
+      vim.keymap.set('n', '<leader>E', ':NvimTreeFindFile<cr>', { desc = 'Find current file in tree' })
     end,
   },
 
@@ -489,8 +672,6 @@ require("lazy").setup({
     end,
     keys = {
       { '<leader>cc', '<cmd>ClaudeCode<cr>', desc = 'Launch Claude Code' },
-      { 'y', '<cmd>ClaudeCodeDiffAccept<cr>', desc = 'Accept Claude diff (yes)' },
-      { 'n', '<cmd>ClaudeCodeDiffDeny<cr>', desc = 'Reject Claude diff (no)' },
       { '<leader>ca', '<cmd>ClaudeCodeDiffAccept<cr>', desc = 'Accept Claude diff' },
       { '<leader>cr', '<cmd>ClaudeCodeDiffDeny<cr>', desc = 'Reject Claude diff' },
     },
