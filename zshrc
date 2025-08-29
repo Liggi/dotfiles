@@ -186,3 +186,4 @@ check-webapp() {
 . "$HOME/.atuin/bin/env"
 
 eval "$(atuin init zsh)"
+export PATH="$HOME/codexfiles/bin:$PATH"
