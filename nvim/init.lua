@@ -711,6 +711,9 @@ require("lazy").setup({
 
         -- Rust
         rust = { 'rustfmt' },
+
+        -- Kotlin
+        kotlin = { 'ktlint' },
       },
     },
   },
@@ -731,6 +734,7 @@ require("lazy").setup({
         sh = { 'shellcheck' },
         markdown = { 'markdownlint' },
         yaml = { 'yamllint' },
+        kotlin = { 'ktlint' },
       }
 
       local grp = vim.api.nvim_create_augroup('NvimLint', { clear = true })
@@ -752,9 +756,9 @@ require("lazy").setup({
       require('mason-tool-installer').setup({
         ensure_installed = {
           -- Formatters
-          'prettierd', 'prettier', 'stylua', 'black', 'shfmt', 'goimports',
+          'prettierd', 'prettier', 'stylua', 'black', 'shfmt', 'goimports', 'ktlint',
           -- Linters
-          'eslint_d', 'ruff', 'luacheck', 'golangci-lint', 'shellcheck', 'markdownlint', 'yamllint',
+          'eslint_d', 'ruff', 'luacheck', 'golangci-lint', 'shellcheck', 'markdownlint', 'yamllint', 'ktlint',
         },
         auto_update = false,
         run_on_start = true,
