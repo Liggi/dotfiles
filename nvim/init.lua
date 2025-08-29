@@ -676,4 +676,89 @@ require("lazy").setup({
       { '<leader>cr', '<cmd>ClaudeCodeDiffDeny<cr>', desc = 'Reject Claude diff' },
     },
   },
+
+  -- Formatting (conform.nvim)
+  {
+    'stevearc/conform.nvim',
+    event = { 'BufWritePre' },
+    opts = {
+      format_on_save = function(bufnr)
+        -- Use LSP if no formatter configured; keep it fast
+        return { timeout_ms = 2000, lsp_fallback = true }
+      end,
+      formatters_by_ft = {
+        -- JS/TS and friends via prettierd (fallback to prettier)
+        javascript = { { 'prettierd', 'prettier' } },
+        javascriptreact = { { 'prettierd', 'prettier' } },
+        typescript = { { 'prettierd', 'prettier' } },
+        typescriptreact = { { 'prettierd', 'prettier' } },
+        json = { { 'prettierd', 'prettier' } },
+        jsonc = { { 'prettierd', 'prettier' } },
+        yaml = { { 'prettierd', 'prettier' } },
+        markdown = { { 'prettierd', 'prettier' } },
+
+        -- Lua
+        lua = { 'stylua' },
+
+        -- Python
+        python = { 'black' },
+
+        -- Go
+        go = { { 'goimports', 'gofmt' } },
+
+        -- Shell
+        sh = { 'shfmt' },
+
+        -- Rust
+        rust = { 'rustfmt' },
+      },
+    },
+  },
+
+  -- Linting (nvim-lint)
+  {
+    'mfussenegger/nvim-lint',
+    config = function()
+      local lint = require('lint')
+      lint.linters_by_ft = {
+        javascript = { 'eslint_d' },
+        javascriptreact = { 'eslint_d' },
+        typescript = { 'eslint_d' },
+        typescriptreact = { 'eslint_d' },
+        python = { 'ruff' },
+        lua = { 'luacheck' },
+        go = { 'golangcilint' },
+        sh = { 'shellcheck' },
+        markdown = { 'markdownlint' },
+        yaml = { 'yamllint' },
+      }
+
+      local grp = vim.api.nvim_create_augroup('NvimLint', { clear = true })
+      vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
+        group = grp,
+        callback = function()
+          -- try all configured linters for the current filetype
+          require('lint').try_lint()
+        end,
+      })
+    end,
+  },
+
+  -- Ensure external tools exist (installed via mason)
+  {
+    'WhoIsSethDaniel/mason-tool-installer.nvim',
+    dependencies = { 'williamboman/mason.nvim' },
+    config = function()
+      require('mason-tool-installer').setup({
+        ensure_installed = {
+          -- Formatters
+          'prettierd', 'prettier', 'stylua', 'black', 'shfmt', 'goimports',
+          -- Linters
+          'eslint_d', 'ruff', 'luacheck', 'golangci-lint', 'shellcheck', 'markdownlint', 'yamllint',
+        },
+        auto_update = false,
+        run_on_start = true,
+      })
+    end,
+  },
 })
