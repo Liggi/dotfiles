@@ -17,13 +17,21 @@ export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export PATH="/opt/homebrew/bin:$PATH"
 
 # Add specialized tools
-export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"  # Java 11
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"       # PostgreSQL tools
 
-# Add your Go workspace
-export PATH="$PATH:$HOME/go/bin"
+## Go workspace binaries will not be auto-added; prefer brew or mise-managed install
 
 source $ZSH/oh-my-zsh.sh
+
+# Runtime/toolchain manager (global)
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
+
+# direnv (future per-repo envs; harmless without .envrc)
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
+fi
 
 # Editor setup - Use Neovim
 if command -v nvim >/dev/null 2>&1; then
@@ -34,23 +42,12 @@ else
   export EDITOR=vim
 fi
 
-# Add Rust/Cargo tools
-export PATH="$HOME/.cargo/bin:$PATH"
-
-# Node.js version management
-export NVM_DIR="$HOME/.nvm"
-[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
-[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+## Cargo-installed binaries are not auto-added; prefer brew or mise-managed install
 
 # Go private modules
 export GOPRIVATE=github.com/gradientlabs-ai/wearegradient
 
-# pnpm setup
-export PNPM_HOME="/Users/jasonliggi/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+# pnpm managed by mise; no manual PNPM_HOME PATH needed
 # Custom database connection function
 db() { pgcli $(encore db conn-uri platform | sed 's/localhost/127.0.0.1/') }
 

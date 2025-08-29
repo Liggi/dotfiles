@@ -33,5 +33,5 @@ Git aliases, settings, and user info
 git clone https://github.com/Liggi/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./scripts/install
+./scripts/verify-mise   # optional: verify mise toolchains
 ```
-

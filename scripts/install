@@ -26,7 +26,7 @@ fi
 
 # Install CLI tools and applications
 echo "⚡ Installing CLI productivity tools and applications..."
-brew install bat eza fd ripgrep lazygit gh tldr neovim git-delta starship fzf zoxide dust 2>/dev/null || echo "  Some tools may already be installed"
+brew install bat eza fd ripgrep lazygit gh tldr neovim git-delta starship fzf zoxide dust mise direnv 2>/dev/null || echo "  Some tools may already be installed"
 
 # Install broot
 if ! command -v broot >/dev/null 2>&1; then
@@ -88,6 +88,20 @@ fi
 if [[ -f "$DOTFILES_DIR/starship.toml" ]]; then
   ln -sf "$DOTFILES_DIR/starship.toml" ~/.config/starship.toml
   echo "  Starship config symlinked"
+fi
+
+# Setup mise global config
+mkdir -p ~/.config/mise
+if [[ -f "$DOTFILES_DIR/mise/config.toml" ]]; then
+  ln -sf "$DOTFILES_DIR/mise/config.toml" ~/.config/mise/config.toml
+  echo "  mise config symlinked"
+fi
+
+# Install global toolchains via mise (non-fatal if network unavailable)
+if command -v mise >/dev/null 2>&1; then
+  echo "🧰 Installing runtimes via mise (from ~/.config/mise/config.toml)..."
+  mise install -y || echo "  mise install skipped/failed (will work after network/keychain setup)"
+  mise reshim || true
 fi
 
 echo "✅ Dotfiles setup complete!"
