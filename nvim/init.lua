@@ -243,7 +243,7 @@ require("lazy").setup({
       print("LSP handler set with border: rounded")
 
       require('mason-lspconfig').setup({
-        ensure_installed = { 'lua_ls', 'ts_ls', 'pyright', 'gopls', 'rust_analyzer' },
+        ensure_installed = { 'lua_ls', 'ts_ls', 'pyright', 'gopls', 'rust_analyzer', 'kotlin_language_server', 'dartls' },
         automatic_installation = true,
         handlers = {
           function(server_name)
