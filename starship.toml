@@ -10,12 +10,6 @@ read_only = "🔒 "
 read_only_style = "red bold"
 home_symbol = ""
 
-[directory.substitutions]
-"/src/github.com/gradientlabs-ai-two" = "Workspace Two"
-"/src/github.com/gradientlabs-ai" = "Workspace One"
-"src/github.com/gradientlabs-ai-two" = "Workspace Two"
-"src/github.com/gradientlabs-ai" = "Workspace One"
-
 [character]
 success_symbol = "[❯](bold green)"
 error_symbol = "[❯](bold red)"
