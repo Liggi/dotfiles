@@ -90,6 +90,12 @@ if [[ -f "$DOTFILES_DIR/starship.toml" ]]; then
   echo "  Starship config symlinked"
 fi
 
+if [[ -f "$DOTFILES_DIR/ghostty/config" ]]; then
+  mkdir -p "$HOME/Library/Application Support/com.mitchellh.ghostty"
+  ln -sf "$DOTFILES_DIR/ghostty/config" "$HOME/Library/Application Support/com.mitchellh.ghostty/config"
+  echo "  Ghostty config symlinked"
+fi
+
 # Setup mise global config
 mkdir -p ~/.config/mise
 if [[ -f "$DOTFILES_DIR/mise/config.toml" ]]; then

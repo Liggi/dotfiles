@@ -102,19 +102,15 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 -- Plugin configuration
 require("lazy").setup({
-	-- Color scheme
 	{
-		"folke/tokyonight.nvim",
+		"w0ng/vim-hybrid",
 		lazy = false,
 		priority = 1000,
 		config = function()
-			vim.cmd([[colorscheme tokyonight-storm]])
+			vim.cmd([[colorscheme hybrid]])
 
-			-- Clean floating window styling
 			vim.schedule(function()
-				-- Transparent border background to prevent extending beyond border
-				vim.api.nvim_set_hl(0, "FloatBorder", { bg = "NONE", fg = "#7aa2f7" })
-				-- Let Tokyo Night handle NormalFloat styling
+				vim.api.nvim_set_hl(0, "FloatBorder", { bg = "NONE", fg = "#81a2be" })
 			end)
 		end,
 	},
@@ -559,7 +555,7 @@ require("lazy").setup({
 		opts = {
 			options = {
 				icons_enabled = false,
-				theme = "tokyonight",
+				theme = "auto",
 				component_separators = "|",
 				section_separators = "",
 			},
