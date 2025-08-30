@@ -45,13 +45,12 @@ vim.opt.termguicolors = true
 -- Smooth, consistent scroll binding behavior
 vim.o.scrollopt = "ver,jump"
 
--- Leader key
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
+vim.g.mapleader = ","
+vim.g.maplocalleader = ","
 
--- Essential keymaps
 vim.keymap.set("n", "<leader>w", "<cmd>write<cr>", { desc = "Save file" })
 vim.keymap.set("n", "<leader>q", "<cmd>quit<cr>", { desc = "Quit" })
+vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, { desc = "Show diagnostic" })
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<cr>")
 
 -- Close floating windows with Esc
@@ -254,7 +253,6 @@ require("lazy").setup({
 					"gopls",
 					"rust_analyzer",
 					"kotlin_language_server",
-					"dartls",
 				},
 				automatic_installation = true,
 				handlers = {
@@ -742,32 +740,19 @@ require("lazy").setup({
 				return { timeout_ms = 2000, lsp_fallback = true }
 			end,
 			formatters_by_ft = {
-				-- JS/TS and friends via prettierd (fallback to prettier)
-				javascript = { { "prettierd", "prettier" } },
-				javascriptreact = { { "prettierd", "prettier" } },
-				typescript = { { "prettierd", "prettier" } },
-				typescriptreact = { { "prettierd", "prettier" } },
-				json = { { "prettierd", "prettier" } },
-				jsonc = { { "prettierd", "prettier" } },
-				yaml = { { "prettierd", "prettier" } },
-				markdown = { { "prettierd", "prettier" } },
-
-				-- Lua
+				javascript = { "prettierd", "prettier", stop_after_first = true },
+				javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+				typescript = { "prettierd", "prettier", stop_after_first = true },
+				typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+				json = { "prettierd", "prettier", stop_after_first = true },
+				jsonc = { "prettierd", "prettier", stop_after_first = true },
+				yaml = { "prettierd", "prettier", stop_after_first = true },
+				markdown = { "prettierd", "prettier", stop_after_first = true },
 				lua = { "stylua" },
-
-				-- Python
 				python = { "black" },
-
-				-- Go
-				go = { { "goimports", "gofmt" } },
-
-				-- Shell
+				go = { "goimports", "gofmt", stop_after_first = true },
 				sh = { "shfmt" },
-
-				-- Rust
 				rust = { "rustfmt" },
-
-				-- Kotlin
 				kotlin = { "ktlint" },
 			},
 		},
@@ -778,6 +763,12 @@ require("lazy").setup({
 		"mfussenegger/nvim-lint",
 		config = function()
 			local lint = require("lint")
+			
+			lint.linters.markdownlint.args = {
+				"--disable", "MD013",
+				"--"
+			}
+			
 			lint.linters_by_ft = {
 				javascript = { "eslint_d" },
 				javascriptreact = { "eslint_d" },

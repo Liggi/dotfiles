@@ -26,7 +26,7 @@ fi
 
 # Install CLI tools and applications
 echo "⚡ Installing CLI productivity tools and applications..."
-brew install bat eza fd ripgrep lazygit gh tldr neovim git-delta starship fzf zoxide dust mise direnv 2>/dev/null || echo "  Some tools may already be installed"
+brew install bat eza fd ripgrep lazygit gh tldr neovim git-delta starship fzf zoxide dust mise direnv carapace 2>/dev/null || echo "  Some tools may already be installed"
 
 # Install broot
 if ! command -v broot >/dev/null 2>&1; then

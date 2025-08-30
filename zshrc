@@ -47,6 +47,10 @@ eval "$(starship init zsh)"
 eval "$(zoxide init zsh)" 
 source /Users/jasonliggi/.config/broot/launcher/bash/br
 
+if command -v carapace >/dev/null 2>&1; then
+  source <(carapace _carapace)
+fi
+
 # Modern CLI tool aliases
 alias cat="bat"
 alias ls="eza --icons --group-directories-first"
