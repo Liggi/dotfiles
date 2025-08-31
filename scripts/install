@@ -85,6 +85,11 @@ else
   echo "  Neovim config will be created separately"
 fi
 
+if [[ -f "$DOTFILES_DIR/nvim/.luarc.json" ]]; then
+  ln -sf "$DOTFILES_DIR/nvim/.luarc.json" ~/.config/nvim/.luarc.json
+  echo "  Neovim Lua LSP config symlinked"
+fi
+
 if [[ -f "$DOTFILES_DIR/starship.toml" ]]; then
   ln -sf "$DOTFILES_DIR/starship.toml" ~/.config/starship.toml
   echo "  Starship config symlinked"
