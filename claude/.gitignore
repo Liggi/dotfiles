@@ -1,0 +1,2 @@
+# Lattice auto-generates and periodically overwrites this; exclude from version control
+hooks/pre-compact-hook.sh

@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "BASH_DEFAULT_TIMEOUT_MS": "900000",
+    "BASH_MAX_TIMEOUT_MS": "900000"
+  },
+  "includeCoAuthoredBy": false,
+  "model": "opus[1m]",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/jasonliggi/.claude/hooks/database-safety-hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "/Users/jasonliggi/.claude/hooks/commit-attribution-hook.sh"
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3001/api/permissions/hooks/pre-tool-use",
+            "timeout": 600000,
+            "headers": {
+              "X-Lattice-PreToolUse-Hook": "v1"
+            }
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://localhost:3001/api/permissions/hooks/permission-request",
+            "timeout": 600000,
+            "headers": {
+              "X-Lattice-Permission-Hook": "v1"
+            }
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/jasonliggi/.claude/hooks/pre-compact-hook.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash /Users/jasonliggi/.claude/hooks/statusline-command.sh"
+  },
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true,
+  "feedbackSurveyState": {
+    "lastShownTime": 1754038067914
+  },
+  "toolPermissions": {
+    "allow": [
+      "Write(/Users/jasonliggi/.claude/skills/**)",
+      "Edit(/Users/jasonliggi/.claude/skills/**)",
+      "Write(/Users/jasonliggi/.claude/commands/**)",
+      "Edit(/Users/jasonliggi/.claude/commands/**)",
+      "Write(/Users/jasonliggi/.claude/agents/**)",
+      "Edit(/Users/jasonliggi/.claude/agents/**)"
+    ],
+    "deny": []
+  },
+  "gitAttribution": false
+}

@@ -1,0 +1,1 @@
+/Users/jasonliggi/.agents/skills/hand-compute/SKILL.md
