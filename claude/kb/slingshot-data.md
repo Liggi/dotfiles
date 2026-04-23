@@ -1,8 +1,3 @@
----
-name: slingshot-data-kb
-description: Data-systems reference for Slingshot work outside of analyst — AlloyDB, BigQuery, Firestore, Qdrant, Mixpanel, Statsig, APEX, id graph, data quality, routing. Use when the session touches any Slingshot analytics, metadata, events, transcripts, costs, experiments, cross-system joins, or schema/connection/safety questions. Also covers slingshot-core CLI (`sc`), Grafana, Cloud Logging, Sentry.
----
-
 # Slingshot data knowledge base
 
 The canonical reference for Slingshot data systems lives at:

@@ -1,8 +1,3 @@
----
-name: llm-json-parsing
-description: Defensively parse JSON responses from LLM APIs. Use when parsing JSON output from Anthropic, OpenAI, or any LLM call — LLMs frequently wrap JSON in markdown code fences even when instructed not to.
----
-
 # Parsing LLM JSON responses
 
 LLMs frequently wrap JSON output in markdown code fences even when explicitly instructed to output raw JSON. Handle this defensively.

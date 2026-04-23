@@ -1,8 +1,3 @@
----
-name: nextjs-troubleshooting
-description: Diagnose Next.js dev server issues. Use when Next.js shows chunk 404 errors, mysterious hot-reload failures, stale build output, or when `next dev` behaves inconsistently after code changes.
----
-
 # Next.js dev server troubleshooting
 
 ## Cache corruption after hot reload

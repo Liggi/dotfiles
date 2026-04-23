@@ -1,15 +1,10 @@
----
-name: ash-builder-db
-description: Query the Ash Builder Supabase (production) — annotations, evaluation batches, transcripts, evaluation criteria and results, annotator users. Use for annotation analysis, evaluation campaign progress, annotator decision patterns, or cross-joining to AlloyDB/BigQuery for session context.
----
-
 # Ash Builder DB
 
 Query production Supabase (the Ash Builder database) for annotations, evaluation batches, transcripts, evaluation criteria and results, and annotator user accounts.
 
-## When to Use
+## When to read
 
-**Use this skill when:**
+Read this when:
 - You need to find specific annotations (by user, date, conversation, message)
 - You need to analyze annotation patterns or decisions
 - You need to understand what annotators accepted/rejected
@@ -18,9 +13,9 @@ Query production Supabase (the Ash Builder database) for annotations, evaluation
 - You need to cross-reference annotations with conversation data
 - User asks about "Julia's annotations", "recent annotations", "evaluation batches", "evaluation progress"
 
-**Don't use this skill when:**
-- You only need conversation metadata (use `slingshot-data-kb` → `kb/alloydb.md` or `kb/bigquery.md`)
-- You only need message content (use `sc fetch` or `slingshot-data-kb` → `kb/firestore.md`)
+Don't read this when:
+- You only need conversation metadata (use `kb/slingshot-data.md` → AlloyDB or BigQuery)
+- You only need message content (use `sc fetch` or Firestore)
 - Local Supabase is sufficient (development/testing)
 
 ## Architecture
@@ -615,9 +610,9 @@ fs.writeFileSync('/tmp/output.json', JSON.stringify(data, null, 2));
 console.log('Results written to /tmp/output.json');
 ```
 
-## Related Skills
+## Related KB
 
-- **slingshot-data-kb**: Data-systems reference for AlloyDB (session/message metadata), BigQuery (events, transcripts, costs), Firestore (message content), id graph, and cross-system joins.
+- **`kb/slingshot-data.md`**: Data-systems reference for AlloyDB (session/message metadata), BigQuery (events, transcripts, costs), Firestore (message content), id graph, and cross-system joins.
 
 ## Examples
 
