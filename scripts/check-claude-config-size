@@ -1,0 +1,58 @@
+#!/bin/bash
+# Enforce size ceilings on Claude Code config files. Run manually or wire
+# into a pre-commit / cron to catch drift back toward prose bloat.
+#
+# Usage: check-claude-config-size
+# Exits non-zero on any violation.
+
+set -uo pipefail
+
+DOTFILES="$HOME/src/dotfiles/claude"
+MEMORY="$HOME/.claude/projects/-Users-jasonliggi-src/memory/MEMORY.md"
+
+fail=0
+
+check() {
+  local file="$1"
+  local limit="$2"
+  local label="$3"
+
+  if [[ ! -f "$file" && ! -L "$file" ]]; then
+    printf "SKIP  %-32s — file not found: %s\n" "$label" "$file"
+    return
+  fi
+
+  local lines
+  lines=$(wc -l < "$file" | tr -d ' ')
+
+  if (( lines > limit )); then
+    printf "FAIL  %-32s %d lines (limit %d) — %s\n" "$label" "$lines" "$limit" "$file"
+    fail=1
+  else
+    printf "OK    %-32s %d/%d lines\n" "$label" "$lines" "$limit"
+  fi
+}
+
+echo "Claude config size check"
+echo "------------------------"
+
+# Home CLAUDE.md — the project-level instructions injected into every session
+# where cwd is under $HOME. After routing-protocol restructure: ~109 lines.
+# Ceiling gives ~11 lines of headroom; tighten once stable.
+check "$DOTFILES/home-CLAUDE.md" 120 "home CLAUDE.md"
+
+# Global CLAUDE.md — intentionally thin; content moves to skills.
+check "$DOTFILES/CLAUDE.md" 10 "global CLAUDE.md"
+
+# MEMORY.md — loaded every session as auto-memory index. Current size reflects
+# pre-prune state; tighten to ~100 after the active/archive split.
+check "$MEMORY" 160 "MEMORY.md (pre-prune)"
+
+echo "------------------------"
+if (( fail == 0 )); then
+  echo "All within limits."
+else
+  echo "One or more files exceed their ceilings."
+fi
+
+exit $fail
