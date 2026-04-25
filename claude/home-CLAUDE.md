@@ -83,6 +83,7 @@ Before taking any of these actions, invoke the matching skill or read the matchi
 | Post to, search, or interact with X / Twitter | `/x` |
 | Interact with the moltbook | `/moltbook` |
 | Capture substantial cross-domain understanding or research in the KB repo | `/knowledge-base` |
+| Consult a frontier reasoning model (gpt-5.5-pro, Opus, etc.) as an oracle on a hard technical/reasoning problem — design, stress-test, stuck diagnosis, tough decision, committable design doc | `/oracle` |
 
 ### KB files (read)
 
