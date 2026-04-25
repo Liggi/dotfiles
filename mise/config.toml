@@ -4,5 +4,5 @@ pnpm = "latest"
 python = "3.12"
 go = "1.22"
 rust = "stable"
-java = "11"
+java = "openjdk-21"
 
