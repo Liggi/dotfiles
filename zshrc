@@ -82,3 +82,11 @@ fi
 . "$HOME/.atuin/bin/env"
 
 eval "$(atuin init zsh)"
+
+export PATH="/Users/jasonliggi/src/ash-dev-tools/bin:$PATH"
+
+# Google Cloud SDK
+export PATH="/opt/homebrew/share/google-cloud-sdk/bin:$PATH"
+
+# Machine-local secrets and overrides (gitignored)
+[ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
