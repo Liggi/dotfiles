@@ -70,6 +70,14 @@
     "type": "command",
     "command": "bash /Users/jasonliggi/.claude/hooks/statusline-command.sh"
   },
+  "extraKnownMarketplaces": {
+    "exa": {
+      "source": {
+        "source": "github",
+        "repo": "exa-labs/exa-mcp-server"
+      }
+    }
+  },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
@@ -87,5 +95,8 @@
     ],
     "deny": []
   },
-  "gitAttribution": false
+  "gitAttribution": false,
+  "enabledPlugins": {
+    "exa@exa": true
+  }
 }
