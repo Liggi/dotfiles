@@ -44,9 +44,9 @@ check "$DOTFILES/home-CLAUDE.md" 120 "home CLAUDE.md"
 # Global CLAUDE.md — intentionally thin; content moves to skills.
 check "$DOTFILES/CLAUDE.md" 10 "global CLAUDE.md"
 
-# MEMORY.md — loaded every session as auto-memory index. Current size reflects
-# pre-prune state; tighten to ~100 after the active/archive split.
-check "$MEMORY" 160 "MEMORY.md (pre-prune)"
+# MEMORY.md — loaded every session as auto-memory index. Historical/completed
+# work lives in MEMORY-ARCHIVE.md (not auto-loaded). Post-split: ~124 lines.
+check "$MEMORY" 130 "MEMORY.md"
 
 echo "------------------------"
 if (( fail == 0 )); then
