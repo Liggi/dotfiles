@@ -51,16 +51,6 @@ if command -v carapace >/dev/null 2>&1; then
   source <(carapace _carapace)
 fi
 
-# Modern CLI tool aliases
-alias cat="bat"
-alias ls="eza --icons --group-directories-first"
-alias ll="eza -l --icons --group-directories-first"
-alias la="eza -la --icons --group-directories-first"  
-alias tree="eza --tree --icons"
-alias find="fd"
-alias grep="rg"
-alias du="dust"
-
 # Enhanced FZF integration with modern tools
 export FZF_DEFAULT_COMMAND="fd --type f --color=never"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
