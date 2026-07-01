@@ -83,9 +83,10 @@ Read your whole diff as if you were the reviewer and you don't trust the author.
 
 - **Strip the noise** — dead code, commented-out experiments, leftover debug, notes-to-self,
   unrelated churn. Every line of noise is attention stolen from the real change.
-- **Check it against the house-rules** (`references/house-rules.md`) — the things reviewers here flag
-  repeatedly (reversibility, scale/performance, decomposition, and so on). Fix what applies; not every
-  rule applies to every change.
+- **Read `references/house-rules.md` and go through the applicable rules.** These are the things
+  reviewers here flag repeatedly — mined from real review history and tagged by how often each recurs.
+  Check your diff against the ones that apply, starting with the `[load-bearing]` ones (performance/scale,
+  reversibility, decomposition, diff-noise), and fix what you can. Not every rule applies to every change.
 - **Get the machines green where you can** — lint, format, tests, codegen — so the reviewer never
   spends a comment on something a tool could have caught. If something genuinely can't pass yet (e.g. it
   depends on a contract or shared-library change that isn't merged), say so in the review notes rather
